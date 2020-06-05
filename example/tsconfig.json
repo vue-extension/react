@@ -10,6 +10,10 @@
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
     "sourceMap": true,
+    "noUnusedLocals": false,
+    "strictNullChecks": false,
+    "noImplicitAny": false,
+    "removeComments": false,
     "baseUrl": ".",
     "types": [
       "webpack-env"
