@@ -1,20 +1,20 @@
 <template>
   <div class="tsxHtml">
     111
-    <HCReact></HCReact>
-    222
+    <TweenOne :animation="{ x: 100 }">demo</TweenOne>222
   </div>
 </template>
 
 <script lang="ts">
-import { Vue, Component, Prop } from "vue-property-decorator";
+import Vue from "vue";
+import { Component, Prop } from "vue-property-decorator";
 import React from "react";
-import HCReact from "../../reactComponents/html";
-
-@Component({ components: {  } })
+import TweenOne from "rc-tween-one";
+Vue.useReact("TweenOne", TweenOne);
+@Component({ components: {} })
 export default class TsxHtml extends Vue {
-  mounted(){
-console.log("React",React.Component);
+  mounted() {
+    console.log("React", TweenOne);
   }
 }
 </script>

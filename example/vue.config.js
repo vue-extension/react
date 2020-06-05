@@ -24,7 +24,7 @@ module.exports = {
       ],
       alias: {
         "lodash-es": "lodash",
-        react$: "@/vext-react/index.ts",
+        // react$: "@/vext-react/index.ts",
         vue$: "vue/dist/vue.esm.js"
       }
     }

@@ -9,8 +9,12 @@
   },
   "dependencies": {
     "@types/react": "^16.9.35",
+    "@types/react-dom": "^16.9.8",
+    "babel-plugin-transform-react-jsx": "^6.24.1",
     "core-js": "^3.6.5",
+    "rc-tween-one": "^2.7.2",
     "react": "^16.13.1",
+    "react-dom": "^16.13.1",
     "vue": "^2.6.11",
     "vue-class-component": "^7.2.3",
     "vue-property-decorator": "^8.4.2",

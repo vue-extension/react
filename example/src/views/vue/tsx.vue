@@ -1,7 +1,7 @@
 <script lang="tsx">
 import { Vue, Component, Prop } from "vue-property-decorator";
- 
-@Component({ components: {  } })
+
+@Component({ components: {} })
 export default class Tsx extends Vue {
   text = "[1,2,3]";
   className = "page ";

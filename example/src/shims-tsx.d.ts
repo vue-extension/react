@@ -1,5 +1,12 @@
 import Vue, { VNode } from "vue";
 
+declare module "vue/types/vue" {
+  interface VueConstructor {
+    useReact: Function;
+    $lang: any;
+  }
+}
+
 declare global {
   namespace JSX {
     // tslint:disable no-empty-interface
