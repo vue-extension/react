@@ -1,6 +1,6 @@
 {
   "name": "vext-react",
-  "version": "2.6.4",
+  "version": "2.6.8",
   "main": "src/index.ts",
   "modules": "dist/index.js",
   "types": "types/index.d.ts",

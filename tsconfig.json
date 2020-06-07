@@ -14,11 +14,18 @@
     "strictNullChecks": true,
     "noImplicitAny": true,
     "removeComments": false,
-    "lib": ["es6", "es7", "DOM"],
+    "lib": [
+      "es6",
+      "es7",
+      "DOM"
+    ],
     "importHelpers": true,
     "experimentalDecorators": true,
     "esModuleInterop": true,
-    "types": ["webpack-env", "node"]
+    "types": [
+      "webpack-env",
+      "node"
+    ]
   },
   "include": [
     "src/**/*.ts",
@@ -28,5 +35,7 @@
     "tests/**/*.tsx",
     "typings/**/*.ts"
   ],
-  "exclude": ["node_modules"]
+  "exclude": [
+    "node_modules"
+  ]
 }

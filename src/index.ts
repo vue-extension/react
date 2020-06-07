@@ -1,11 +1,11 @@
 /**
- * fork from <https://github.com/alkin/vue-react>
  * @author Zou Jian <https://github.com/chsword>
  */
 import React from "react";
 import ReactDOM from "react-dom";
-import Vue, { VNode, PluginFunction } from "vue";
-import { Component as VueComponent, Prop } from "vue-property-decorator";
+
+import Vue, { VNode, PluginFunction, CreateElement } from "vue";
+import { Component, Prop } from "vue-property-decorator";
 import { VueConstructor } from "vue/types/vue";
 function eventAttribute(event: string) {
   return event.indexOf("on") === 0
@@ -17,7 +17,7 @@ function getAttributes(el: Element | Node | undefined) {
   const obj: Record<string, any> = {};
   if (!el) return obj;
   const attributes = (el as any).attributes;
-  console.log("attributes", attributes);
+  //console.log("attributes", attributes);
   for (let i = 0, n = attributes.length; i < n; i++) {
     let name = attributes[i].nodeName;
     const value = attributes[i].nodeValue;
@@ -28,47 +28,49 @@ function getAttributes(el: Element | Node | undefined) {
   return obj;
 }
 
-function VNodeToReact(VNode: VNode): React.DOMElement<{}, Element> | string {
-  if (typeof VNode.tag === "undefined") {
+function VNodeToReact(vNode: VNode): React.DOMElement<{}, Element> | string {
+  if (typeof vNode.tag === "undefined") {
     // Trim
-    return (VNode.text || "").replace(/^\s+|\s+$/g, "");
+    return (vNode.text || "").replace(/^\s+|\s+$/g, "");
   }
-
-  if (VNode.tag.indexOf("vue-") === 0) {
+  //console.log("1")
+  if (vNode.tag.indexOf("vue-") === 0) {
     return "";
   }
-
+  //console.log("2")
   // Attributes
 
   // children
-  if (typeof VNode.children === "undefined") {
-    return React.createElement(VNode.tag, {});
-  }
+  if (typeof vNode.children === "undefined") {
 
+    return React.createElement(vNode.tag, { ...vNode.data?.attrs });
+  }
+  //console.log("3")
   return React.createElement(
-    VNode.tag,
-    getAttributes(VNode.elm),
-    ...VNodesToChildren(VNode.children)
+    vNode.tag,
+    getAttributes(vNode.elm),
+    ...VNodesToChildren(vNode.children)
   );
 }
 
 function VNodesToChildren(
-  VNodes: Record<string | number, VNode> | Array<VNode>
+  vNodes: Record<string | number, VNode> | Array<VNode>
 ) {
-  VNodes = VNodes || [];
+  vNodes = vNodes || [];
   const children: Array<React.DOMElement<{}, Element> | string> = [];
-  if (Array.isArray(VNodes)) {
-    for (let i = 0; i < VNodes.length; i++) {
-      const VNode = VNodes[i];
-      const child = VNodeToReact(VNode);
+  if (Array.isArray(vNodes)) {
+    for (let i = 0; i < vNodes.length; i++) {
+      const vNode = vNodes[i];
+      //console.log("vn", vNode)
+      const child = VNodeToReact(vNode);
       if (child) {
         children.push(child);
       }
     }
   } else {
-    Object.keys(VNodes).forEach(function(i) {
-      const VNode = VNodes[i as any];
-      const child = VNodeToReact(VNode);
+    Object.keys(vNodes).forEach(function (i) {
+      const vNode = vNodes[i as any];
+      const child = VNodeToReact(vNode);
       if (child) {
         children.push(child);
       }
@@ -76,61 +78,79 @@ function VNodesToChildren(
   }
   return children;
 }
-function ReactToVue(name: string, Component: any) {
-  return Vue.extend({
-    // name: name,
-    data() {
-      return {
-        props: {},
-        component: {},
-        children: [],
-      };
-    },
-    methods: {
-      refresh() {
-        console.log("Component", Component);
-        (this as any).component = ReactDOM.render(
-          React.createElement(
-            Component,
-            (this as any).props,
-            ...(this as any).children
-          ),
-          this.$el
-        );
-      },
-    },
-    render(createElement: any) {
-      return createElement("div", this.$slots.default);
-    },
+function ReactToVue(name: string, reactComponent: any): any {
+  @Component({ name: name })
+  class ReactToVueComponent extends Vue {
+    @Prop({ type: String }) mytest: string;
+    props: any = {};
+    component: any;
+    children: any[] = [];
+    public refresh() {
+      //  console.log("props", this.props)
+      const el = document.createElement("div");
+      this.component = ReactDOM.render(
+        React.createElement(
+          reactComponent,
+          this.props,
+          ...this.children
+        ),
+        el//this.$el
+      );
+      //   this.$el.replaceChild();
+
+      this.$el.parentElement?.replaceChild(el.childNodes[0], this.$el)
+      // this.component = ReactDOM.render(
+      //   React.createElement(
+      //     reactComponent,
+      //     this.props,
+      //     ...this.children
+      //   ),
+      //   this.$el
+      // );
+    }
     mounted() {
       // Copy all attributes to props
-      Object.assign((this as any).props, this.$attrs);
-
+      Object.assign(this.props, this.$attrs);
+      // if (this.$vnode.data?.staticStyle) {
+      //   Object.assign(this.props, { style: this.$vnode.data?.staticStyle });
+      // }
+      // if (this.$vnode.data?.style) {
+      //   Object.assign(this.props, { style: this.$vnode.data?.style });
+      // }
+      // console.log("children: ", this.$props)
+      // Object.keys(this.props).forEach((key) => {
+      //   this.$props[key] = this.props[key]
+      // });
       // Register Events and Handlers
       Object.keys((this as any)._events).forEach((event) => {
         event = eventAttribute(event);
-        (this as any).props[event] = (...args: any) =>
+        this.props[event] = (...args: any) =>
           this.$emit(event, ...args);
       });
 
       // Map default slot to children
-      (this as any).children = VNodesToChildren(this.$slots.default || []);
+      this.children = VNodesToChildren(this.$slots.default || []);
 
       // Render
-      (this as any).refresh();
+      this.refresh();
 
       // Watch attrs and refresh
-      Object.keys(this.$attrs).forEach((prop) => {
+      Object.keys(this.$attrs).forEach((attrKey) => {
         this.$watch(
-          () => this.$attrs[prop],
+          () => this.$attrs[attrKey],
           (value: any) => {
-            (this as any).props[prop] = value;
-            (this as any).refresh();
+            this.props[attrKey] = value;
+            this.refresh();
           }
         );
       });
-    },
-  });
+    }
+    render(h: CreateElement) {
+      //return h(document.createElement("div").tagName)
+      return h("span", { attrs: undefined }, this.$slots.default);
+    }
+  }
+  return ReactToVueComponent;
 }
 function AsVue(...args: any[]) {
   const arg = parserComponentArgs(args);
@@ -149,8 +169,8 @@ function parserComponentArgs(args: any[]) {
   }
   return { name, component };
 }
-const install: PluginFunction<any> = function(vue: any, options: any) {
-  vue.useReact = function(...args: any[]) {
+const install: PluginFunction<any> = function (vue: any, options: any) {
+  vue.useReact = function (...args: any[]) {
     const arg = parserComponentArgs(args);
     const component = ReactToVue(arg.name, arg.component);
     vue.component(arg.name, component);
