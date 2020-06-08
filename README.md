@@ -1,7 +1,13 @@
 # react
 Use react components in the Vue project
 
+```
+yarn add --save vext-react
+```
 
+```
+npm i --save vext-react
+```
 
 ``` ts
 import VueReact from "vext-react";
